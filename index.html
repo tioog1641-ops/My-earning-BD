@@ -14,9 +14,9 @@
         .btn-success { background: #10b981; }
         .btn-success:hover { background: #059669; }
         .btn-warning { background: #f59e0b; }
+        .btn-secondary { background: #475569; margin-top: 10px; }
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; box-sizing: border-box; text-align: center; }
         .flex-box { display: flex; justify-content: space-between; gap: 10px; }
-        .badge { background: #ef4444; padding: 3px 8px; border-radius: 5px; font-size: 12px; font-weight: bold; }
         .social-links a { display: inline-block; margin: 5px; color: #3b82f6; text-decoration: none; font-size: 14px; }
     </style>
 </head>
@@ -27,28 +27,47 @@
     
     <div class="social-links" style="margin-bottom: 15px;">
         <a href="https://t.me/incomezone28" target="_blank">📢 Telegram</a> | 
-        <a href="https://www.youtube.com/@%E0%A6%AC%E0%A6%BE%E0%A6%B6%E0%A7%87%E0%A6%B0%E0%A6%PA%E0%A6%A4%E0%A6%BE-%E0%A7%AC%E0%A7%AD%E0%A7%AE" target="_blank">📺 YouTube</a> | 
+        <a href="https://www.youtube.com/@%E0%A6%AC%E0%A6%BE%E0%A6%B6%E0%A7%8體%E0%A6%A4%E0%A6%BE-%E0%A7%AC%E0%A7%AD%E0%A7%AE" target="_blank">📺 YouTube</a> | 
         <a href="https://www.instagram.com/nishijannat1?igsh=MXBvNjY0dDZocHlkcA==" target="_blank">📸 Instagram</a>
     </div>
 
-    <div id="activation-screen" class="card">
+    <!-- ১. রেজিস্ট্রেশন স্ক্রিন (Sign Up) -->
+    <div id="register-screen" class="card">
+        <h3 style="color: #3b82f6;">📝 অ্যাকাউন্ট তৈরি করুন</h3>
+        <input type="email" id="reg-email" placeholder="আপনার জিমেইল (Email) দিন">
+        <input type="password" id="reg-pass" placeholder="নতুন পাসওয়ার্ড দিন">
+        <button class="btn btn-success" onclick="handleRegister()">অ্যাকাউন্ট তৈরি করুন</button>
+        <button class="btn btn-secondary" onclick="switchScreen('login')">ইতিমধ্যে অ্যাকাউন্ট আছে? লগইন করুন</button>
+    </div>
+
+    <!-- ২. লগইন স্ক্রিন (Login) -->
+    <div id="login-screen" class="card" style="display:none;">
+        <h3 style="color: #3b82f6;">🔐 লগইন করুন</h3>
+        <input type="email" id="login-email" placeholder="আপনার জিমেইল দিন">
+        <input type="password" id="login-pass" placeholder="পাসওয়ার্ড দিন">
+        <button class="btn btn-success" onclick="handleLogin()">লগইন করুন</button>
+        <button class="btn btn-secondary" onclick="switchScreen('register')">নতুন অ্যাকাউন্ট তৈরি করুন</button>
+    </div>
+
+    <!-- ৩. অ্যাকাউন্ট অ্যাক্টিভেশন স্ক্রিন -->
+    <div id="activation-screen" class="card" style="display:none;">
         <h3 style="color: #ef4444;">⚠️ অ্যাকাউন্ট ইনঅ্যাক্টিভ!</h3>
         <p>অ্যাকাউন্ট অ্যাক্টিভ করতে ২০ টাকা সেন্ডমানি করুন।</p>
         <p style="background: #0f172a; padding: 10px; border-radius: 8px; font-weight: bold; color: #10b981;">
             বিকাশ পার্সোনাল: 01540560027
         </p>
         <input type="text" id="txid-input" placeholder="বিকাশ ট্রানজেকশন আইডি (TxID) দিন">
-        <input type="text" id="ref-by-input" placeholder="রেফার কোড (ঐচ্ছিক)">
         <button class="btn btn-success" onclick="submitActivation()">অ্যাক্টিভেশনের জন্য পাঠান</button>
     </div>
 
+    <!-- ৪. পেন্ডিং স্ক্রিন -->
     <div id="pending-screen" class="card" style="display:none;">
         <h3 style="color: #f59e0b;">⏳ অনুরোধ পেন্ডিং আছে</h3>
         <p>আপনার পাঠানো ট্রানজেকশন আইডিটি অ্যাডমিন চেক করছেন। কিছুক্ষণের মধ্যে অ্যাকাউন্ট অ্যাক্টিভ হয়ে যাবে।</p>
     </div>
 
+    <!-- ৫. মূল অ্যাপ স্ক্রিন (Main Dashboard) -->
     <div id="main-app" style="display:none;">
-        
         <div class="card flex-box">
             <div style="flex:1; border-right: 1px solid #334155;">
                 <p style="margin:0; font-size:12px; color:#94a3b8;">কাজের ব্যালেন্স</p>
@@ -61,29 +80,24 @@
         </div>
 
         <div class="card">
-            <p style="margin:0 0 5px 0; font-size:14px;">👥 আপনার রেফার কোড (টেলিগ্রাম আইডি):</p>
-            <span id="my-ref-code" style="font-weight:bold; color:#f59e0b; background:#0f172a; padding:5px 10px; border-radius:5px;">000000</span>
+            <p style="margin:0 0 5px 0; font-size:14px;">👥 আপনার রেফার লিংক:</p>
+            <input type="text" id="my-ref-link" readonly style="background:#0f172a; color:#f59e0b; font-weight:bold; cursor:pointer;" onclick="copyRefLink()">
         </div>
 
         <div class="card">
-            <h3>🎁 ডেইলি ক্লাইম</h3>
+            <h3>🎁 DAILY CLAIM</h3>
             <p>নিচের বাটনে ক্লিক করে বিজ্ঞাপনের লিংকে যান এবং ৩,০০০ কয়েন ক্লাইম করুন।</p>
             <button id="claim-btn" class="btn" onclick="startClaim()">Claim 3000 Coins</button>
         </div>
 
         <div class="card">
             <h3>💰 উইথড্র (টাকা তুলুন)</h3>
-            <div style="margin-bottom: 15px; text-align: left; font-size: 14px; background:#0f172a; padding:10px; border-radius:8px;">
-                • ১ লাখ কয়েন = ৪০ টাকা (নূন্যতম ১ লাখ কয়েন লাগবে)<br>
-                • রেফার টাকা নূন্যতম ২০ টাকা হলেই উইথড্র।
-            </div>
             <input type="text" id="wallet-number" placeholder="বিকাশ/নগদ নাম্বার দিন">
             <div class="flex-box">
                 <button class="btn btn-warning" onclick="withdraw('coins')">কয়েন উইথড্র</button>
                 <button class="btn btn-success" onclick="withdraw('ref')">রেফার উইথড্র</button>
             </div>
         </div>
-
     </div>
 
 </div>
@@ -91,61 +105,130 @@
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-    const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : "test_user_1";
-    document.getElementById('my-ref-code').innerText = userId;
-
+    
     const dbUrl = "https://my-earning-bd-4016c-default-rtdb.firebaseio.com"; 
+    let currentSessionEmail = ""; 
+    let userData = { active: false, pending: false, coins: 0, refMoney: 0, lastClaim: "", email: "", password: "" };
 
-    let userData = { active: false, pending: false, coins: 0, refMoney: 0, lastClaim: "" };
+    function switchScreen(screen) {
+        document.getElementById('register-screen').style.display = screen === 'register' ? 'block' : 'none';
+        document.getElementById('login-screen').style.display = screen === 'login' ? 'block' : 'none';
+    }
 
-    async function loadData() {
-        let res = await fetch(`${dbUrl}/users/${userId}.json`);
+    // জিমেইল থেকে ফায়ারবেস ফ্রেন্ডলি আইডি তৈরি করার ফাংশন (. বা @ বাদ দিতে)
+    function generateUserKey(email) {
+        return email.toLowerCase().replace(/[^a-zA-Z0-9]/g, "_");
+    }
+
+    // ১. অ্যাকাউন্ট তৈরি (Register)
+    async function handleRegister() {
+        const email = document.getElementById('reg-email').value.trim();
+        const pass = document.getElementById('reg-pass').value.trim();
+
+        if(!email || !pass) return alert("দয়া করে জিমেইল এবং পাসওয়ার্ড দুটিই দিন!");
+        if(pass.length < 6) return alert("পাসওয়ার্ড নূন্যতম ৬ অক্ষরের হতে হবে!");
+
+        const userKey = generateUserKey(email);
+
+        // চেক করা যে জিমেইলটি আগে ব্যবহার হয়েছে কিনা
+        let checkRes = await fetch(`${dbUrl}/auth_users/${userKey}.json`);
+        let checkData = await checkRes.json();
+
+        if(checkData) {
+            return alert("এই জিমেইল দিয়ে ইতিমধ্যেই অ্যাকাউন্ট তৈরি করা আছে। লগইন করুন!");
+        }
+
+        // নতুন ইউজার ডাটা প্রস্তুত করা
+        userData.email = email;
+        userData.password = pass;
+
+        // ডাটাবেজে সংরক্ষণ
+        await fetch(`${dbUrl}/auth_users/${userKey}.json`, { method: 'PUT', body: JSON.stringify(userData) });
+        
+        currentSessionEmail = userKey;
+        alert("অ্যাকাউন্ট তৈরি সফল হয়েছে!");
+        updateUI();
+    }
+
+    // ২. লগইন (Login)
+    async function handleLogin() {
+        const email = document.getElementById('login-email').value.trim();
+        const pass = document.getElementById('login-pass').value.trim();
+
+        if(!email || !pass) return alert("দয়া করে জিমেইল এবং পাসওয়ার্ড দিন!");
+
+        const userKey = generateUserKey(email);
+
+        let res = await fetch(`${dbUrl}/auth_users/${userKey}.json`);
         let data = await res.json();
-        if(data) {
+
+        if(data && data.password === pass) {
             userData = data;
+            currentSessionEmail = userKey;
+            alert("লগইন সফল হয়েছে!");
             updateUI();
+        } else {
+            alert("ভুল জিমেইল অথবা পাসওয়ার্ড! আবার চেষ্টা করুন।");
         }
     }
 
     function updateUI() {
+        // সব স্ক্রিন প্রথমে হাইড করা
+        document.getElementById('register-screen').style.display = 'none';
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('activation-screen').style.display = 'none';
+        document.getElementById('pending-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'none';
+
+        if(!currentSessionEmail) {
+            document.getElementById('register-screen').style.display = 'block';
+            return;
+        }
+
         if(userData.active) {
-            document.getElementById('activation-screen').style.display = 'none';
-            document.getElementById('pending-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
             document.getElementById('coin-balance').innerText = userData.coins;
             document.getElementById('ref-balance').innerText = userData.refMoney;
+            document.getElementById('my-ref-link').value = `https://t.me/My_Earning_BD_bot?start=${currentSessionEmail}`;
         } else if(userData.pending) {
-            document.getElementById('activation-screen').style.display = 'none';
             document.getElementById('pending-screen').style.display = 'block';
+        } else {
+            document.getElementById('activation-screen').style.display = 'block';
         }
     }
 
+    // ৩. অ্যাক্টিভেশন সাবমিট
     async function submitActivation() {
         const txid = document.getElementById('txid-input').value.trim();
-        const refBy = document.getElementById('ref-by-input').value.trim();
         if(!txid) return alert("অনুগ্রহ করে ট্রানজেকশন আইডি দিন!");
 
         userData.pending = true;
-        await fetch(`${dbUrl}/users/${userId}.json`, { method: 'PUT', body: JSON.stringify(userData) });
-        await fetch(`${dbUrl}/requests/${userId}.json`, { method: 'PUT', body: JSON.stringify({ txid: txid, refBy: refBy, time: new Date().toLocaleDateString() }) });
+        await fetch(`${dbUrl}/auth_users/${currentSessionEmail}.json`, { method: 'PUT', body: JSON.stringify(userData) });
+        await fetch(`${dbUrl}/requests/${currentSessionEmail}.json`, { method: 'PUT', body: JSON.stringify({ txid: txid, email: userData.email, time: new Date().toLocaleDateString() }) });
         
         alert("আপনার রিকোয়েস্ট সাবমিট হয়েছে!");
         updateUI();
     }
 
+    function copyRefLink() {
+        const copyText = document.getElementById("my-ref-link");
+        copyText.select();
+        navigator.clipboard.writeText(copyText.value);
+        alert("রেফার লিংক কপি হয়েছে!");
+    }
+
     function startClaim() {
         const today = new Date().toLocaleDateString();
-        if(userData.lastClaim === today) {
-            return alert("আপনি আজকে ইতিমধ্যেই ৩,০০০ কয়েন ক্লাইম করেছেন! আগামীকাল আবার চেষ্টা করুন।");
-        }
+        if(userData.lastClaim === today) return alert("আজকে ইতিমধ্যেই ক্লাইম করেছেন!");
+        
         tg.openLink("https://www.effectivecpmnetwork.com/zbke4sd4p8?key=92d580dbb91e1d93820f0773956f0a71");
         
         setTimeout(async () => {
             userData.coins += 3000;
             userData.lastClaim = today;
-            await fetch(`${dbUrl}/users/${userId}.json`, { method: 'PUT', body: JSON.stringify(userData) });
+            await fetch(`${dbUrl}/auth_users/${currentSessionEmail}.json`, { method: 'PUT', body: JSON.stringify(userData) });
             updateUI();
-            alert("অভিনন্দন! ৩,০০০ কয়েন আপনার ব্যালেন্সে যোগ হয়েছে।");
+            alert("৩,০০০ কয়েন যোগ হয়েছে!");
         }, 3000);
     }
 
@@ -154,22 +237,20 @@
         if(!num) return alert("বিকাশ বা নগদ নাম্বার দিন!");
 
         if(type === 'coins') {
-            if(userData.coins < 100000) return alert("কয়েন উইথড্র করতে নূন্যতম ১,০০,০০০ কয়েন লাগবে!");
+            if(userData.coins < 100000) return alert("নূন্যতম ১,০০,০০০ কয়েন লাগবে!");
             userData.coins -= 100000;
-            await fetch(`${dbUrl}/withdrawals.json`, { method: 'POST', body: JSON.stringify({ userId, num, type: "Coins (40 Tk)", time: new Date().toLocaleString() }) });
+            await fetch(`${dbUrl}/withdrawals.json`, { method: 'POST', body: JSON.stringify({ email: userData.email, num, type: "Coins (40 Tk)", time: new Date().toLocaleString() }) });
         } else {
             if(userData.refMoney < 20) return alert("রেফার ব্যালেন্স নূন্যতম ২০ টাকা হতে হবে!");
             let amount = userData.refMoney;
             userData.refMoney = 0;
-            await fetch(`${dbUrl}/withdrawals.json`, { method: 'POST', body: JSON.stringify({ userId, num, type: `Refer Money (${amount} Tk)`, time: new Date().toLocaleString() }) });
+            await fetch(`${dbUrl}/withdrawals.json`, { method: 'POST', body: JSON.stringify({ email: userData.email, num, type: `Refer Money (${amount} Tk)`, time: new Date().toLocaleString() }) });
         }
         
-        await fetch(`${dbUrl}/users/${userId}.json`, { method: 'PUT', body: JSON.stringify(userData) });
+        await fetch(`${dbUrl}/auth_users/${currentSessionEmail}.json`, { method: 'PUT', body: JSON.stringify(userData) });
         updateUI();
-        alert("উইথড্র রিকোয়েস্ট সফল হয়েছে! অ্যাডমিন কিছুক্ষণের মধ্যে টাকা পাঠিয়ে দেবেন।");
+        alert("উইথড্র রিকোয়েস্ট সফল হয়েছে!");
     }
-
-    loadData();
 </script>
 </body>
 </html>
