@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earn Money Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #17212b; color: white; text-align: center; padding: 20px; }
+        .balance-box { background: #242f3d; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .task-card { background: #242f3d; padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+        button { background: #1485c9; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h2>Earn Coins 🇧🇩</h2>
+    <div class="balance-box">
+        <h3>Your Balance: <span id="balance">0</span> Coins</h3>
+    </div>
+
+    <div class="task-card">
+        <div>
+            <h4>Join Telegram Channel</h4>
+            <p>+50 Coins</p>
+        </div>
+        <button onclick="doTask('https://t.me/your_channel')">Start</button>
+    </div>
+
+    <div class="task-card">
+        <div>
+            <h4>Watch YouTube Video</h4>
+            <p>+30 Coins</p>
+        </div>
+        <button onclick="doTask('https://youtube.com')">Start</button>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let currentBalance = 0;
+
+        function doTask(url) {
+            tg.openLink(url);
+            // আপাতত টেস্ট করার জন্য ক্লিক করলেই ১০ কয়েন যোগ হবে
+            currentBalance += 10;
+            document.getElementById('balance').innerText = currentBalance;
+        }
+    </script>
+</body>
+</html>
