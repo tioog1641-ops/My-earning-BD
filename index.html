@@ -49,7 +49,7 @@
 
     <div id="activation-screen" class="card" style="display:none;">
         <h3 style="color: #ef4444;">⚠️ অ্যাকাউন্ট অ্যাক্টিভেশন প্রয়োজন!</h3>
-        <p>অ্যাকাউন্ট অ্যাক্টিভ করতে ২০ টাকা সেন্ডমানি করুন।</p>
+        <p>অ্যাকাউন্ট অ্যাক্টি করতে ২০ টাকা সেন্ডমানি করুন।</p>
         <p style="background: #0f172a; padding: 10px; border-radius: 8px; font-weight: bold; color: #10b981;">
             বিকাশ পার্সোনাল: 01540560027
         </p>
@@ -90,7 +90,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, set, get, update, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // আপনার ফায়ারবেস কনফিগারেশন
+    // ফায়ারবেস কনফিগারেশন
     const firebaseConfig = {
         databaseURL: "https://my-earning-bd-4016c-default-rtdb.firebaseio.com/"
     };
@@ -104,7 +104,6 @@
     let userEmailSanitized = "";
     let userReferId = "";
 
-    // রেফারেল আইডি ইউআরএল থেকে নেওয়া
     const urlParams = new URLSearchParams(window.location.search);
     const referrer = urlParams.get('ref');
 
@@ -134,7 +133,7 @@
                 const userData = snapshot.val();
                 showScreen(userData);
             } else {
-                // নতুন ইউজার তৈরি
+                // নতুন ইউজার ডাটাবেজে তৈরি
                 const newUser = {
                     email: userEmailSanitized.replace(/_/g, '.'),
                     coins: 0,
@@ -166,7 +165,7 @@
         }
     }
 
-    // অ্যাক্টিভেশন সাবমিট
+    // অ্যাক্টিভেশন রিকোয়েস্ট পাঠানো
     window.submitActivation = function() {
         const txid = document.getElementById("txid-input").value.trim();
         if(txid === "") {
@@ -174,7 +173,6 @@
             return;
         }
         
-        // রিকোয়েস্ট পাঠানো এবং স্ট্যাটাস পেন্ডিং করা
         update(ref(database, `tioog1641_gmail_com/${userEmailSanitized}`), { pending: true });
         set(ref(database, `requests/${userEmailSanitized}`), {
             email: userEmailSanitized.replace(/_/g, '.'),
@@ -187,7 +185,7 @@
         });
     }
 
-    // ডেইলি বোনাস
+    // ডেইলি বোনাস সিস্টেম
     window.claimDailyBonus = function() {
         const today = new Date().toDateString();
         const userRef = ref(database, `tioog1641_gmail_com/${userEmailSanitized}`);
@@ -196,6 +194,21 @@
             const data = snapshot.val();
             if(data.lastClaim === today) {
                 alert("আপনি আজ অলরেডি বোনাস নিয়েছেন! আগামীকাল আবার চেষ্টা করুন।");
+            } else {
+                const newCoins = (data.coins || 0) + 100;
+                update(userRef, {
+                    coins: newCoins,
+                    lastClaim: today
+                }).then(() => {
+                    document.getElementById("coin-balance").innerText = newCoins;
+                    alert("অভিনন্দন! আপনি ১০০ কয়েন বোনাস পেয়েছেন।");
+                });
+            }
+        });
+    }
+</script>
+</body>
+</html>
             } else {
                 const newCoins = (data.coins || 0) + 100;
                 update(userRef, {
