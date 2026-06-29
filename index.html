@@ -18,7 +18,6 @@
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #475569; background: #334155; color: white; box-sizing: border-box; }
         .flex-box { display: flex; justify-content: space-between; gap: 10px; }
         .social-links a { display: inline-block; margin: 5px; color: #3b82f6; text-decoration: none; font-size: 14px; }
-        #google-login-btn { display: flex; justify-content: center; margin: 20px 0; }
     </style>
 </head>
 <body>
@@ -32,36 +31,42 @@
         <a href="https://www.instagram.com" target="_blank">📸 Instagram</a>
     </div>
 
-    <div id="auth-screen" class="card">
-        <h3 style="color: #3b82f6;">👋 অ্যাকাউন্ট তৈরি বা লগইন করুন</h3>
-        <p style="font-size: 14px; color: #94a3b8;">সহজে এবং নিরাপদভাবে প্রবেশ করতে নিচের গুগল বাটনে ক্লিক করুন।</p>
-        
-        <script src="https://accounts.google.com/gsi/client" async defer></script>
-        <div id="g_id_onload"
-             data-client_id="156944141164-k8hp0fc4a4eltp5oeeihdn5mvpli8d0.apps.googleusercontent.com"
-             data-callback="handleCredentialResponse"
-             data-auto_prompt="false">
-        </div>
-        <div id="google-login-btn">
-            <div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_blue" data-text="signin_with" data-shape="rounded" data-logo_alignment="left"></div>
-        </div>
+    <!-- ১. রেজিস্ট্রেশন স্ক্রিন (Sign Up) -->
+    <div id="register-screen" class="card">
+        <h3 style="color: #3b82f6;">📝 অ্যাকাউন্ট তৈরি করুন</h3>
+        <input type="email" id="reg-email" placeholder="আপনার জিমেইল (Email) দিন">
+        <input type="password" id="reg-pass" placeholder="আপনার পাসওয়ার্ড দিন">
+        <button class="btn btn-success" onclick="handleRegister()">অ্যাাকাউন্ট তৈরি করুন</button>
+        <button class="btn btn-secondary" onclick="switchScreen('login')">ইতিমধ্যে অ্যাকাউন্ট আছে? লগইন করুন</button>
     </div>
 
+    <!-- ২. লগইন স্ক্রিন (Login) -->
+    <div id="login-screen" class="card" style="display:none;">
+        <h3 style="color: #3b82f6;">🔐 লগইন করুন</h3>
+        <input type="email" id="login-email" placeholder="আপনার জিমেইল দিন">
+        <input type="password" id="login-pass" placeholder="পাসওয়ার্ড দিন">
+        <button class="btn btn-success" onclick="handleLogin()">লগইন করুন</button>
+        <button class="btn btn-secondary" onclick="switchScreen('register')">নতুন অ্যাকাউন্ট তৈরি করুন</button>
+    </div>
+
+    <!-- ৩. অ্যাকাউন্ট অ্যাক্টিভেশন স্ক্রিন -->
     <div id="activation-screen" class="card" style="display:none;">
         <h3 style="color: #ef4444;">⚠️ অ্যাকাউন্ট অ্যাক্টিভেশন প্রয়োজন!</h3>
-        <p>অ্যাকাউন্ট অ্যাক্টি করতে ২০ টাকা সেন্ডমানি করুন।</p>
+        <p>অ্যাাকাউন্ট অ্যাক্টিভ করতে ২০ টাকা সেন্ডমানি করুন।</p>
         <p style="background: #0f172a; padding: 10px; border-radius: 8px; font-weight: bold; color: #10b981;">
-            বিকাশ পার্সোনাল: 01540560027
+            বিকাش পার্সোনাল: 01540560027
         </p>
         <input type="text" id="txid-input" placeholder="বিকাশ ট্রানজেকশন আইডি (TxID) দিন">
         <button class="btn btn-success" onclick="submitActivation()">অ্যাক্টিভেশনের জন্য পাঠান</button>
     </div>
 
+    <!-- ৪. পেন্ডিং স্ক্রিন -->
     <div id="pending-screen" class="card" style="display:none;">
         <h3 style="color: #f59e0b;">⏳ অনুরোধ পেন্ডিং আছে</h3>
         <p>আপনার পাঠানো ট্রানজেকশন আইডিটি যাচাই করা হচ্ছে। কিছুক্ষণের মধ্যে অ্যাকাউন্ট অ্যাক্টিভ হয়ে যাবে।</p>
     </div>
 
+    <!-- ৫. মূল অ্যাপ স্ক্রিন (Main Dashboard) -->
     <div id="main-app" class="card" style="display:none;">
         <div class="flex-box">
             <div style="flex:1; border-right: 1px solid #334155;">
@@ -86,11 +91,11 @@
 
 </div>
 
+<!-- ফায়ারবেস স্ক্রিপ্ট লোড -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, set, get, update, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // ফায়ারবেস কনফিগারেশন
     const firebaseConfig = {
         databaseURL: "https://my-earning-bd-4016c-default-rtdb.firebaseio.com/"
     };
@@ -101,15 +106,143 @@
     let tg = window.Telegram.WebApp;
     tg.expand();
 
-    let userEmailSanitized = "";
-    let userReferId = "";
+    let currentUserEmailSanitized = "";
 
     const urlParams = new URLSearchParams(window.location.search);
     const referrer = urlParams.get('ref');
 
-    // গুগল লগইন রেসপন্স হ্যান্ডলার
-    window.handleCredentialResponse = function(response) {
-        const responsePayload = parseJwt(response.credential);
+    // স্ক্রিন পরিবর্তন ফাংশন
+    window.switchScreen = function(screen) {
+        if(screen === 'login') {
+            document.getElementById("register-screen").style.display = "none";
+            document.getElementById("login-screen").style.display = "block";
+        } else if(screen === 'register') {
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("register-screen").style.display = "block";
+        }
+    }
+
+    // রেজিস্ট্রেশন হ্যান্ডলার
+    window.handleRegister = function() {
+        const email = document.getElementById("reg-email").value.trim();
+        const password = document.getElementById("reg-pass").value.trim();
+
+        if(email === "" || password === "") {
+            alert("অনুগ্রহ করে সব তথ্য সঠিকভাবে দিন!");
+            return;
+        }
+
+        currentUserEmailSanitized = email.replace(/\./g, '_');
+        const dbRef = ref(database);
+
+        get(child(dbRef, `tioog1641_gmail_com/${currentUserEmailSanitized}`)).then((snapshot) => {
+            if (snapshot.exists()) {
+                alert("এই ইমেল দিয়ে ইতিমধ্যে অ্যাকাউন্ট তৈরি করা আছে! লগইন করুন।");
+            } else {
+                const newUser = {
+                    email: email,
+                    password: password,
+                    coins: 0,
+                    refMoney: 0,
+                    active: false,
+                    pending: false,
+                    lastClaim: "never",
+                    referredBy: referrer ? referrer : "none"
+                };
+                set(ref(database, `tioog1641_gmail_com/${currentUserEmailSanitized}`), newUser).then(() => {
+                    showScreen(newUser);
+                });
+            }
+        });
+    }
+
+    // লগইন হ্যান্ডলার
+    window.handleLogin = function() {
+        const email = document.getElementById("login-email").value.trim();
+        const password = document.getElementById("login-pass").value.trim();
+
+        if(email === "" || password === "") {
+            alert("অনুগ্রহ করে ইমেল এবং পাসওয়ার্ড দিন!");
+            return;
+        }
+
+        currentUserEmailSanitized = email.replace(/\./g, '_');
+        const dbRef = ref(database);
+
+        get(child(dbRef, `tioog1641_gmail_com/${currentUserEmailSanitized}`)).then((snapshot) => {
+            if (snapshot.exists()) {
+                const userData = snapshot.val();
+                if(userData.password === password) {
+                    showScreen(userData);
+                } else {
+                    alert("ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।");
+                }
+            } else {
+                alert("এই ইমেল দিয়ে কোনো অ্যাকাউন্ট খুঁজে পাওয়া যায়নি!");
+            }
+        });
+    }
+
+    function showScreen(userData) {
+        document.getElementById("register-screen").style.display = "none";
+        document.getElementById("login-screen").style.display = "none";
+        
+        if (userData.active === true) {
+            document.getElementById("main-app").style.display = "block";
+            document.getElementById("coin-balance").innerText = userData.coins;
+            document.getElementById("ref-balance").innerText = userData.refMoney;
+            document.getElementById("refer-link").value = `https://t.me/MY_Earning_bot?start=${currentUserEmailSanitized}`;
+        } else if (userData.pending === true) {
+            document.getElementById("pending-screen").style.display = "block";
+        } else {
+            document.getElementById("activation-screen").style.display = "block";
+        }
+    }
+
+    // অ্যাক্টিভেশন সাবমিট
+    window.submitActivation = function() {
+        const txid = document.getElementById("txid-input").value.trim();
+        if(txid === "") {
+            alert("অনুগ্রহ করে ট্রানজেকশন আইডি দিন!");
+            return;
+        }
+        
+        update(ref(database, `tioog1641_gmail_com/${currentUserEmailSanitized}`), { pending: true });
+        set(ref(database, `requests/${currentUserEmailSanitized}`), {
+            email: currentUserEmailSanitized.replace(/_/g, '.'),
+            txid: txid,
+            status: "pending"
+        }).then(() => {
+            document.getElementById("activation-screen").style.display = "none";
+            document.getElementById("pending-screen").style.display = "block";
+            alert("আপনার অ্যাক্টিভেশন রিকোয়েস্ট পাঠানো হয়েছে!");
+        });
+    }
+
+    // ডেইলি বোনাস
+    window.claimDailyBonus = function() {
+        const today = new Date().toDateString();
+        const userRef = ref(database, `tioog1641_gmail_com/${currentUserEmailSanitized}`);
+        
+        get(userRef).then((snapshot) => {
+            const data = snapshot.val();
+            if(data.lastClaim === today) {
+                alert("আপনি আজ অলরেডি বোনাস নিয়েছেন! আগামীকাল আবার চেষ্টা করুন।");
+            } else {
+                const newCoins = (data.coins || 0) + 100;
+                update(userRef, {
+                    coins: newCoins,
+                    lastClaim: today
+                }).then(() => {
+                    document.getElementById("coin-balance").innerText = newCoins;
+                    alert("অভিনন্দন! আপনি ১০০ কয়েন বোনাস পেয়েছেন।");
+                });
+            }
+        });
+    }
+</script>
+</body>
+</html>
         const email = responsePayload.email;
         userEmailSanitized = email.replace(/\./g, '_');
         
